@@ -1,0 +1,106 @@
+---
+title: "Uge3, figurer"
+output: html_document
+date: "2024-09-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+# Øvelse 1:
+Datasættet om "Walking in newborn" loades, og behandlingsvariablen omkodes til factor:
+```{r}
+d <- read.csv('https://biostat.ku.dk/ahp/statsf/datasets/walking.csv')
+d$Group <- factor(d$grp, levels = c("Passive", "Active", "No", "Control"))
+```
+
+Simpelt "stripchart":
+```{r}
+d %>% ggplot(aes(x = Group, 
+                 y = monthwalk)) +
+      geom_jitter(width = 0.1) +
+      theme_bw() + 
+      ylab("Age of walking")
+```
+
+```{r}
+
+```
+
+
+Kombineret stripchart og boxplot. Boxplots er generelt mere anvendelige, hvis man har lidt flere observationer end vi har her, men det er ofte en god ide at vise de enkelte datapunkter samtidig, så læseren har bedre mulighed for at bedømme hvordan data er fordelt:
+```{r}
+d %>% ggplot(aes(x = Group, 
+                 y = monthwalk)) +
+      geom_boxplot(outlier.colour = NA) +
+      geom_jitter(width = 0.1) +
+      theme_bw() + 
+      ylab("Age of walking")
+```
+
+Hvis vi bedre kan lide violin plots end boxplots er det nemt at skifte til det (igen giver disse mere mening hvis vi har flere datapunkter):
+```{r}
+d %>% ggplot(aes(x = Group, 
+                 y = monthwalk)) +
+      geom_violin() +
+      geom_jitter(width = 0.1) +
+      theme_bw() + 
+      ylab("Age of walking")
+```
+
+Til sidst et density plot, som er en helt alternativ måde at visualisere hvordan forskellige grupper er fordelt på en kontinuert skala. Det giver som regel først mening, hvis vi har væsentligt flere data end i dette tilfælde, og man skal være opmærksom på at sådan noget som outliers kan være meget svære at vurdere med dette plot:
+```{r}
+d %>% ggplot(aes(x = monthwalk, 
+                 color = Group)) +
+      geom_density() +
+      theme_bw() + 
+      theme(legend.position = "bottom",
+            legend.title = element_blank())
+      xlab("Age of walking") 
+```
+
+
+# Øvelse 2:
+Overskriver det gamle datasæt:
+```{r}
+d <- read.csv('https://biostat.ku.dk/ahp/statsf/datasets/vitamind.csv') 
+```
+
+Simpelt scatter plot farvet efter land:
+```{r}
+d %>% mutate(country = factor(country, 
+                              levels = c(2,6),
+                              labels = c("Finland", "Poland"))) %>% 
+      ggplot(aes(x = bmi, 
+                 y = vitd, 
+                 color = country,
+                 group = country)) +
+      geom_point() +
+      theme_classic() +
+      theme(legend.position = "bottom",
+            legend.title = element_blank()) +
+      xlab("BMI") +
+      ylab("Vitamin D")
+```
+
+Samme som ovenfor, men med tilføjede regressionslinjer og konfidensintervaller (separat for hvert land):
+```{r}
+d %>% mutate(country = factor(country, 
+                              levels = c(2,6),
+                              labels = c("Finland", "Poland"))) %>% 
+      ggplot(aes(x = bmi, 
+                 y = vitd, 
+                 color = country,
+                 group = country)) +
+      geom_point() +
+      geom_smooth(method = "lm", formula = y ~ x) +
+      theme_classic() +
+      theme(legend.position = "bottom",
+            legend.title = element_blank()) +
+      xlab("BMI") +
+      ylab("Vitamin D")
+```
+
+
